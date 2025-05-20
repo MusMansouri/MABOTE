@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "ritualId": 1,
+    "date": "2024-07-10",
+    "time": "10:00",
+    "status": "confirmed"
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "ritualId": 4,
+    "date": "2024-07-12",
+    "time": "14:30",
+    "status": "pending"
+  },
+  {
+    "id": 3,
+    "userId": 2,
+    "ritualId": 6,
+    "date": "2024-07-15",
+    "time": "09:00",
+    "status": "cancelled"
+  },
+  {
+    "id": 1,
+    "userId": 3,
+    "date": "2023-11-15",
+    "time": "14:00",
+    "ritualId": 2,
+    "status": "confirmed"
+  },
+  {
+    "id": 2,
+    "userId": 4,
+    "date": "2023-11-16",
+    "time": "10:30",
+    "ritualId": 1,
+    "status": "pending"
+  },
+  {
+    "id": 3,
+    "userId": 3,
+    "date": "2023-11-20",
+    "time": "16:00",
+    "ritualId": 3,
+    "status": "confirmed"
+  }
+]

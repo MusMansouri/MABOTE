@@ -60,7 +60,8 @@ frontend/
 │   └── App.vue          # Composant racine
 ```
 
-**Explication** :  
+**Explication** :
+
 - **components/** : Petits blocs réutilisables, découplés, testables.
 - **composables/** : Fonctions qui encapsulent une logique métier réutilisable (pattern Composition API).
 - **data/** : Fichiers JSON qui simulent une base de données.
@@ -113,12 +114,20 @@ import ritualsData from "@/data/rituals.json";
 const state = { rituals: [...ritualsData] };
 const getters = { allRituals: (state) => state.rituals };
 const mutations = {
-  setRituals(state, rituals) { state.rituals = rituals; },
-  ADD_RITUAL(state, ritual) { state.rituals.push({ ...ritual, id: Date.now() }); }
+  setRituals(state, rituals) {
+    state.rituals = rituals;
+  },
+  ADD_RITUAL(state, ritual) {
+    state.rituals.push({ ...ritual, id: Date.now() });
+  },
 };
 const actions = {
-  fetchRituals({ commit }) { commit("setRituals", [...ritualsData]); },
-  addRitual({ commit }, ritual) { commit("ADD_RITUAL", ritual); }
+  fetchRituals({ commit }) {
+    commit("setRituals", [...ritualsData]);
+  },
+  addRitual({ commit }, ritual) {
+    commit("ADD_RITUAL", ritual);
+  },
 };
 export default { namespaced: true, state, getters, mutations, actions };
 ```
@@ -147,9 +156,15 @@ import { ref, computed } from "vue";
 const user = ref(null);
 export function useAuth() {
   const isAuthenticated = computed(() => !!user.value);
-  function login(email, password) { /* ... */ }
-  function logout() { user.value = null; }
-  function isAdmin() { return user.value?.role === "admin"; }
+  function login(email, password) {
+    /* ... */
+  }
+  function logout() {
+    user.value = null;
+  }
+  function isAdmin() {
+    return user.value?.role === "admin";
+  }
   return { user, isAuthenticated, login, logout, isAdmin };
 }
 ```
@@ -217,7 +232,10 @@ const { user, isAuthenticated, login, logout, isAdmin } = useAuth();
       <img :src="rituel.image" :alt="rituel.name" />
       <div class="card-body">
         <h5>{{ rituel.name }}</h5>
-        <router-link :to="{ name: 'Reservation', params: { ritualId: rituel.id } }">Prendre RDV</router-link>
+        <router-link
+          :to="{ name: 'Reservation', params: { ritualId: rituel.id } }"
+          >Prendre RDV</router-link
+        >
       </div>
     </div>
   </template>
@@ -251,7 +269,10 @@ const { user, isAuthenticated, login, logout, isAdmin } = useAuth();
   ```js
   async function confirmReservation() {
     const conflict = store.getters["appointments/allAppointments"].find(
-      (a) => a.date === selectedDate.value && a.time === selectedSlot.value && a.status !== "cancelled"
+      (a) =>
+        a.date === selectedDate.value &&
+        a.time === selectedSlot.value &&
+        a.status !== "cancelled"
     );
     if (conflict) {
       error.value = "Ce créneau est déjà réservé.";
@@ -286,7 +307,13 @@ const { user, isAuthenticated, login, logout, isAdmin } = useAuth();
   ```js
   function handleAddRitual() {
     store.dispatch("rituals/addRitual", newRitual.value);
-    newRitual.value = { name: "", description: "", duration: 60, price: 0, image: "" };
+    newRitual.value = {
+      name: "",
+      description: "",
+      duration: 60,
+      price: 0,
+      image: "",
+    };
   }
   ```
 
@@ -440,4 +467,5 @@ Accueil → Rituels → Réservation → (Connexion/Inscription) → Dashboard C
 ---
 
 **Ce document est conçu comme un cours avancé et une référence scientifique pour tout projet Vue 3 professionnel.**
+
 # MABOTE

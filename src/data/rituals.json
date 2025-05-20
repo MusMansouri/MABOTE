@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "Massage relaxant",
+    "description": "Un massage doux pour détendre les muscles et apaiser l'esprit.",
+    "duration": 60,
+    "price": 80,
+    "image": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 2,
+    "name": "Soin du visage",
+    "description": "Un traitement complet pour nettoyer, exfolier et hydrater la peau du visage.",
+    "duration": 45,
+    "price": 65,
+    "image": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 3,
+    "name": "Manucure spa",
+    "description": "Un soin complet des mains incluant un massage et une pose de vernis.",
+    "duration": 30,
+    "price": 40,
+    "image": "https://images.unsplash.com/photo-1610992015732-2449b76344bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 4,
+    "name": "Pédicure spa",
+    "description": "Un soin relaxant pour les pieds, incluant un bain de pieds, un gommage et un massage.",
+    "duration": 45,
+    "price": 50,
+    "image": "https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 5,
+    "name": "Enveloppement corporel",
+    "description": "Un soin nourrissant pour le corps entier, laissant la peau douce et hydratée.",
+    "duration": 75,
+    "price": 90,
+    "image": "https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 6,
+    "name": "Massage aux pierres chaudes",
+    "description": "Un massage relaxant utilisant des pierres chaudes pour soulager les tensions musculaires.",
+    "duration": 90,
+    "price": 110,
+    "image": "https://images.unsplash.com/photo-1600334129128-685c5582fd35?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 7,
+    "name": "Soin anti-âge",
+    "description": "Un traitement facial avancé pour réduire les signes visibles du vieillissement.",
+    "duration": 60,
+    "price": 95,
+    "image": "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 8,
+    "name": "Aromathérapie",
+    "description": "Un massage relaxant utilisant des huiles essentielles pour stimuler les sens et détendre le corps.",
+    "duration": 60,
+    "price": 85,
+    "image": "https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "id": 9,
+    "name": "Rituel Éclat Jeunesse",
+    "description": "Un soin anti-âge pour redonner fermeté et luminosité à la peau.",
+    "duration": 70,
+    "price": 120,
+    "image": "https://example.com/images/ritual9.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Soin Apaisant Après-Soleil",
+    "description": "Un soin réparateur pour calmer et hydrater la peau après une exposition solaire.",
+    "duration": 45,
+    "price": 65,
+    "image": "https://example.com/images/ritual10.jpg"
+  }
+]

@@ -1,47 +1,47 @@
 <template>
-  <nav>
-    <div>
-      <img src="./assets/logo.png" alt="" />
-    </div>
-    <div class="links">
-      <router-link to="/">Acceuil</router-link>
-      <router-link to="/about">Rituels</router-link>
-      <router-link to="/about">Conseil</router-link>
-      <router-link to="/about">A Propos</router-link>
-      <router-link to="/about">A Contact</router-link>
-    </div>
-  </nav>
-  <router-view />
+  <div id="app">
+    <NavBar />
+    <router-view />
+    <Footer />
+  </div>
 </template>
+<script setup>
+import { onMounted } from "vue";
+import { useStoreHelpers } from "@/composables/useStoreHelpers";
+import NavBar from "@/components/NavBar.vue";
+import Footer from "@/components/Footer.vue";
+import "@/assets/buttons.css"; // Ajout du style global pour les boutons
 
+const {
+  fetchRituals,
+  fetchConseils,
+  fetchAppointments,
+  fetchAvailabilities,
+  fetchUsers,
+} = useStoreHelpers();
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      fetchRituals(),
+      fetchConseils(),
+      fetchAppointments(),
+      fetchAvailabilities(),
+      fetchUsers(),
+    ]);
+  } catch (error) {
+    console.error("Erreur lors du chargement des données :", error);
+  }
+});
+</script>
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 #app {
-  back
-}
-img {
-  margin-left: 50px;
-  padding: 0%;
-  height: 100px;
-}
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px;
-  background-color: hsl(15, 11%, 78%);
-}
-
-nav a {
-  color: #ffffff;
-  font-family: Baskervville;
-  padding: 10px;
-  background-color: #b96c53;
-  border-radius: 14cap;
-  text-decoration: none;
-  margin: 10px;
-}
-
-nav a.router-link-exact-active {
-  color: #ff0004;
+  background-image: url("./assets/back.png");
+  background-size: contain;
 }
 </style>

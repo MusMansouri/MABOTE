@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "firstName": "Admin",
+    "lastName": "Demo",
+    "email": "admin@mabote.com",
+    "password": "admin123",
+    "role": "admin",
+    "phone": "+33600000001",
+    "photo": "https://ui-avatars.com/api/?name=Admin+Demo&background=b96c53&color=fff"
+  },
+  {
+    "id": 2,
+    "firstName": "Marie",
+    "lastName": "Dupont",
+    "email": "marie.dupont@email.com",
+    "password": "test123",
+    "role": "client",
+    "phone": "+33600000002",
+    "photo": "https://ui-avatars.com/api/?name=Marie+Dupont&background=b96c53&color=fff"
+  },
+  {
+    "id": 3,
+    "firstName": "Paul",
+    "lastName": "Martin",
+    "email": "paul.martin@email.com",
+    "password": "test456",
+    "role": "client",
+    "phone": "+33600000003",
+    "photo": "https://ui-avatars.com/api/?name=Paul+Martin&background=b96c53&color=fff"
+  },
+  {
+    "id": 4,
+    "firstName": "Sophie",
+    "lastName": "Bernard",
+    "email": "sophie.bernard@email.com",
+    "password": "test789",
+    "role": "client",
+    "phone": "+33600000004",
+    "photo": "https://ui-avatars.com/api/?name=Sophie+Bernard&background=b96c53&color=fff"
+  }
+]
