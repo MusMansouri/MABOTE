@@ -1,9 +1,8 @@
-import appointmentsData from "@/data/appointments.json";
-import availabilitiesData from "@/data/availabilities.json";
+import axios from "axios";
 
 const state = {
-  appointments: [...appointmentsData], // Chargement initial des rendez-vous
-  availabilities: [...availabilitiesData], // Chargement initial des disponibilités
+  appointments: [], // Chargement initial des rendez-vous
+  availabilities: [], // Chargement initial des disponibilités
   loading: false,
   error: null,
 };
@@ -69,17 +68,63 @@ const mutations = {
 };
 
 const actions = {
-  fetchAppointments({ commit }) {
-    commit("setAppointments", [...appointmentsData]);
+  async fetchAppointments({ commit }) {
+    try {
+      const token = localStorage.getItem("jwt");
+      const response = await axios.get(
+        "http://localhost:3000/api/appointments",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      commit("setAppointments", response.data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des rendez-vous:", error);
+    }
   },
-  fetchAvailabilities({ commit }) {
-    commit("setAvailabilities", [...availabilitiesData]);
+  async fetchAvailabilities({ commit }) {
+    try {
+      const token = localStorage.getItem("jwt");
+      const response = await axios.get(
+        "http://localhost:3000/api/availabilities",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      commit("setAvailabilities", response.data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des disponibilités:", error);
+    }
   },
-  addAppointment({ commit }, appointment) {
-    commit("ADD_APPOINTMENT", appointment);
+  async addAppointment({ commit }, appointment) {
+    try {
+      const token = localStorage.getItem("jwt");
+      const response = await axios.post(
+        "http://localhost:3000/api/appointments",
+        appointment,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      commit("ADD_APPOINTMENT", response.data);
+    } catch (error) {
+      throw error;
+    }
   },
-  cancelAppointment({ commit }, id) {
-    commit("CANCEL_APPOINTMENT", id);
+  async cancelAppointment({ commit }, id) {
+    try {
+      const token = localStorage.getItem("jwt");
+      await axios.put(
+        `http://localhost:3000/api/appointments/${id}/cancel`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      commit("CANCEL_APPOINTMENT", id);
+    } catch (error) {
+      throw error;
+    }
   },
 };
 

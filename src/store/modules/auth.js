@@ -1,4 +1,5 @@
 import usersData from "@/data/users.json";
+import axios from "axios";
 
 const state = {
   user: null,
@@ -32,17 +33,33 @@ const mutations = {
 };
 
 const actions = {
-  login({ commit, state }, { email, password }) {
-    const user = state.users.find(
-      (u) => u.email === email && u.password === password
-    );
-    if (user) {
+  async login({ commit }, { email, password }) {
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+      const { token, user } = response.data;
+
+      // Store the token in localStorage for persistence
+      localStorage.setItem("jwt", token);
+
+      // Commit the user data to the Vuex store
       commit("SET_USER", user);
       return true;
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      return false;
     }
-    return false;
   },
   logout({ commit }) {
+    // Clear the token from localStorage
+    localStorage.removeItem("jwt");
+
+    // Reset the user state
     commit("SET_USER", null);
   },
   register({ commit, state }, userData) {

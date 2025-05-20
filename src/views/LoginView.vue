@@ -5,10 +5,6 @@
         <div class="card shadow">
           <div class="card-body p-4">
             <h2 class="text-center mb-4">Connexion</h2>
-            <div class="alert alert-info text-center mb-3">
-              (Connexion simulée côté front, aucune donnée n’est envoyée à un
-              serveur.)
-            </div>
             <div v-if="errorMessage" class="alert alert-danger">
               {{ errorMessage }}
             </div>
@@ -74,21 +70,25 @@ const handleLogin = async () => {
   errorMessage.value = "";
   loading.value = true;
 
-  const success = await store.dispatch("auth/login", {
-    email: email.value.trim(),
-    password: password.value,
-  });
+  try {
+    const success = await store.dispatch("auth/login", {
+      email: email.value.trim(),
+      password: password.value,
+    });
 
-  loading.value = false;
-
-  if (success) {
-    if (store.getters["auth/isAdmin"]) {
-      router.push("/admin");
-    } else if (store.getters["auth/isClient"]) {
-      router.push("/client");
+    if (success) {
+      if (store.getters["auth/isAdmin"]) {
+        router.push("/admin");
+      } else if (store.getters["auth/isClient"]) {
+        router.push("/client");
+      }
+    } else {
+      errorMessage.value = "Email ou mot de passe incorrect";
     }
-  } else {
-    errorMessage.value = "Email ou mot de passe incorrect";
+  } catch (error) {
+    errorMessage.value = "Une erreur est survenue. Veuillez réessayer.";
+  } finally {
+    loading.value = false;
   }
 };
 </script>
