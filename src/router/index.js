@@ -83,6 +83,16 @@ const routes = [
     name: "ReservationGuest",
     component: ReservationGuestView,
   },
+  {
+    path: "/privacy",
+    name: "Privacy",
+    component: () => import("@/views/Privacy.vue"),
+  },
+  {
+    path: "/cgv",
+    name: "CGV",
+    component: () => import("@/views/CGV.vue"),
+  },
 ];
 
 const router = createRouter({

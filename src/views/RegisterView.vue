@@ -5,17 +5,13 @@
         <div class="card shadow">
           <div class="card-body p-4">
             <h2 class="text-center mb-4">Inscription</h2>
-            <div class="alert alert-info text-center mb-3">
-              (Inscription simulée côté front, aucune donnée n’est envoyée à un
-              serveur.)
-            </div>
             <div v-if="errorMessage" class="alert alert-danger text-center">
               {{ errorMessage }}
             </div>
             <div v-if="loading" class="text-center my-3">
               <div class="spinner-border text-primary" role="status"></div>
             </div>
-            <form @submit.prevent="registerUser">
+            <form @submit.prevent="handleRegister">
               <div class="mb-3">
                 <label for="firstName" class="form-label">Prénom</label>
                 <input
@@ -57,24 +53,12 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="confirmPassword" class="form-label"
-                  >Confirmer le mot de passe</label
-                >
+                <label for="phone" class="form-label">Téléphone *</label>
                 <input
-                  v-model="confirmPassword"
-                  type="password"
-                  class="form-control"
-                  id="confirmPassword"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="phone" class="form-label">Téléphone</label>
-                <input
-                  v-model="phone"
+                  id="phone"
+                  v-model="userInfo.phone"
                   type="tel"
                   class="form-control"
-                  id="phone"
                   required
                 />
               </div>
@@ -110,37 +94,42 @@ const firstName = ref("");
 const lastName = ref("");
 const email = ref("");
 const password = ref("");
-const confirmPassword = ref("");
-const phone = ref("");
 const errorMessage = ref("");
 const loading = ref(false);
 const router = useRouter();
 const store = useStore();
 
-function registerUser() {
+const handleRegister = async () => {
   errorMessage.value = "";
   loading.value = true;
-  setTimeout(() => {
-    if (password.value !== confirmPassword.value) {
-      errorMessage.value = "Les mots de passe ne correspondent pas";
-      loading.value = false;
-      return;
-    }
-    const success = store.dispatch("auth/register", {
-      firstName: firstName.value,
-      lastName: lastName.value,
+  try {
+    await store.dispatch("auth/register", {
+      nom: lastName.value, // Correction : nom = lastName
+      prenom: firstName.value, // Correction : prenom = firstName
       email: email.value,
       password: password.value,
-      phone: phone.value,
     });
-    if (!success) {
-      errorMessage.value = "Cet email est déjà utilisé.";
-      loading.value = false;
-      return;
+    // Connexion automatique après inscription
+    const success = await store.dispatch("auth/login", {
+      email: email.value,
+      password: password.value,
+    });
+    if (success) {
+      if (store.getters["auth/isAdmin"]) {
+        router.push("/admin");
+      } else {
+        router.push("/client");
+      }
+    } else {
+      router.push("/login");
     }
-    router.push("/client");
-  }, 700);
-}
+  } catch (error) {
+    errorMessage.value =
+      error?.response?.data?.error || "Erreur lors de l'inscription.";
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <style scoped></style>

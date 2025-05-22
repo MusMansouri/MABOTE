@@ -30,7 +30,7 @@
           <label class="form-label">Choisissez une date</label>
           <div class="d-flex flex-wrap gap-2">
             <button
-              v-for="a in availabilities"
+              v-for="a in filteredAvailabilities"
               :key="a.id"
               :class="[
                 'btn',
@@ -43,7 +43,7 @@
           </div>
         </div>
 
-        <!-- Créneaux horaires façon Doctolib -->
+        <!-- Créneaux horaires -->
         <div v-if="selectedDate && selectedRitualId" class="mb-3">
           <label class="form-label">Créneaux disponibles</label>
           <div v-if="availableSlots.length > 0" class="slots-grid">
@@ -118,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useStore } from "vuex";
 
 const store = useStore();
@@ -137,25 +137,30 @@ const bookingMessage = ref("");
 const loading = ref(false);
 const toastMessage = ref("");
 
-const selectDate = (date) => {
-  selectedDate.value = date;
-  bookingMessage.value = "";
-};
+// Filtrer les disponibilités selon le rituel sélectionné
+const filteredAvailabilities = computed(() => {
+  if (!selectedRitualId.value) return [];
+  return availabilities.value.filter(
+    (a) => String(a.ritualId) === String(selectedRitualId.value)
+  );
+});
 
+// Créneaux disponibles selon la disponibilité et la durée du rituel
 const availableSlots = computed(() => {
   if (!selectedDate.value || !selectedRitualId.value) return [];
   const availability = availabilities.value.find(
-    (a) => a.date === selectedDate.value
+    (a) =>
+      a.date === selectedDate.value &&
+      String(a.ritualId) === String(selectedRitualId.value)
   );
   if (!availability) return [];
-
-  const ritual = rituals.value.find((r) => r.id === selectedRitualId.value);
+  const ritual = rituals.value.find(
+    (r) => String(r.id) === String(selectedRitualId.value)
+  );
   const duration = ritual ? ritual.duration : 60;
-
   const slots = [];
   let currentTime = new Date(`${selectedDate.value}T${availability.startTime}`);
   const endTime = new Date(`${selectedDate.value}T${availability.endTime}`);
-
   while (currentTime.getTime() + duration * 60000 <= endTime.getTime()) {
     const slot = currentTime.toTimeString().slice(0, 5);
     const isTaken = myAppointments.value.some(
@@ -172,37 +177,50 @@ const availableSlots = computed(() => {
   return slots;
 });
 
+const selectDate = (date) => {
+  selectedDate.value = date;
+  bookingMessage.value = "";
+};
+
 const bookAppointment = async (slot) => {
   loading.value = true;
   try {
-    // Simule un délai réseau
-    await new Promise((res) => setTimeout(res, 800));
-    const ritual = rituals.value.find((r) => r.id === selectedRitualId.value);
+    const ritual = rituals.value.find(
+      (r) => String(r.id) === String(selectedRitualId.value)
+    );
     if (!ritual) return;
-    addAppointment({
+    await store.dispatch("appointments/addAppointment", {
       date: selectedDate.value,
-      time: slot,
+      heure: slot,
       ritualId: ritual.id,
     });
     toastMessage.value = `Votre rendez-vous pour "${
       ritual.name
     }" est réservé le ${formatDate(selectedDate.value)} à ${slot}.`;
+    bookingMessage.value = toastMessage.value;
+    setTimeout(() => (toastMessage.value = ""), 2500);
   } finally {
     loading.value = false;
   }
 };
 
-const addAppointment = (data) =>
-  store.dispatch("appointments/addAppointment", data);
 const cancelAppointment = (id) =>
   store.dispatch("appointments/cancelAppointment", id);
 
 function formatDate(dateStr) {
-  // Format YYYY-MM-DD → DD/MM/YYYY
   if (!dateStr) return "";
   const [y, m, d] = dateStr.split("-");
   return `${d}/${m}/${y}`;
 }
+
+// Rafraîchir les données au montage
+watch(
+  () => selectedRitualId.value,
+  () => {
+    selectedDate.value = "";
+    bookingMessage.value = "";
+  }
+);
 </script>
 
 <style scoped>

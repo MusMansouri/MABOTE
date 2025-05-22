@@ -1336,6 +1336,10 @@ Vous devrez créer un module Vuex `src/store/modules/rituals.js` similaire à `a
 
 ## 7. Gestion des Données (Simulée)
 
+> **Remarque :**  
+> Si vous avez finalisé la migration vers l'API backend, toutes les opérations de récupération, ajout, modification ou suppression de données (rendez-vous, rituels, conseils, etc.) doivent désormais passer par des appels HTTP à l'API (via axios), et non plus par la lecture de fichiers JSON locaux.  
+> Les exemples ci-dessous sont à adapter pour utiliser les actions Vuex qui appellent l'API.
+
 Le projet "Mabote" utilise des fichiers JSON locaux dans `src/data/` (e.g., `appointments.json`, `rituals.json`). Pour notre tutoriel, nous allons simuler la récupération de ces données.
 
 ### 7.1 Création des Fichiers de Données
@@ -1370,6 +1374,9 @@ Créez le répertoire `src/data/` et ajoutez-y des fichiers JSON. Par exemple :
 Créez des fichiers similaires pour `conseils.json`, `appointments.json`, etc.
 
 ### 7.2 Module Vuex pour les Rituels (`rituals.js`)
+
+> **À adapter pour l'API :**  
+> Remplacez l'import des données locales par des appels axios à l'API backend dans vos actions Vuex.
 
 ```javascript
 // src/store/modules/rituals.js

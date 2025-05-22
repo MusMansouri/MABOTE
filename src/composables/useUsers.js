@@ -1,5 +1,4 @@
 import { ref } from "vue";
-import usersData from "@/data/users.json";
 
 const users = ref([]);
 
@@ -8,7 +7,7 @@ function loadUsers() {
   if (stored) {
     users.value = JSON.parse(stored);
   } else {
-    users.value = [...usersData];
+    users.value = [];
   }
 }
 

@@ -121,8 +121,23 @@
             :key="appointment.id"
           >
             <td>{{ appointment.date }}</td>
-            <td>{{ appointment.time }}</td>
-            <td>{{ appointment.clientName }}</td>
+            <td>{{ appointment.heure || appointment.time }}</td>
+            <td>
+              <!-- Affiche le nom du client, même pour invité -->
+              <span
+                v-if="
+                  appointment.clientName && appointment.clientName !== 'Invité'
+                "
+              >
+                {{ appointment.clientName }}
+              </span>
+              <span
+                v-else-if="appointment.userInfo && appointment.userInfo.name"
+              >
+                {{ appointment.userInfo.name }} (invité)
+              </span>
+              <span v-else> Invité </span>
+            </td>
             <td>{{ appointment.ritualName }}</td>
             <td>
               <span

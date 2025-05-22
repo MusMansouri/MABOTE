@@ -99,16 +99,62 @@
 
 <script setup>
 // aucun script nécessaire pour ce bloc statique
-import feedbacksData from "@/data/feedbacks.json";
-import usersData from "@/data/users.json";
-import { ref } from "vue";
-const feedbacks = ref([...feedbacksData]);
-const users = ref([...usersData]);
+import { ref, onMounted } from "vue";
+import { useStoreHelpers } from "@/composables/useStoreHelpers";
+import axios from "axios";
+
+const { allUsers, fetchUsers } = useStoreHelpers();
+const feedbacks = ref([]);
+const users = allUsers;
+
 function getUserName(userId) {
   const user = users.value.find((u) => u.id === userId);
   if (!user) return "Utilisateur";
   return (user.firstName || "") + " " + (user.lastName || "");
 }
+
+async function loadFeedbacks() {
+  let apiFeedbacks = [];
+  try {
+    const API_URL = process.env.VUE_APP_API_URL || "";
+    const res = await axios.get(`${API_URL}/feedbacks`);
+    // Mappe les feedbacks BDD au format attendu par l'affichage
+    apiFeedbacks = Array.isArray(res.data)
+      ? res.data.map((fb) => ({
+          id: fb.id,
+          userId: fb.UserId || fb.userId,
+          message: fb.comment || fb.message,
+          photo: fb.photo || "",
+          createdAt: fb.createdAt,
+        }))
+      : [];
+  } catch (e) {
+    // Silencieusement ignorer si l'API n'est pas dispo
+    apiFeedbacks = [];
+  }
+  // Feedbacks locaux (feedbacksAll)
+  const stored = localStorage.getItem("feedbacksAll");
+  const localFeedbacks = stored
+    ? JSON.parse(stored).map((fb) => ({
+        ...fb,
+        userId: fb.userId || fb.UserId,
+        message: fb.message || fb.comment,
+      }))
+    : [];
+  // Fusionne et retire les doublons par id
+  const all = [
+    ...apiFeedbacks,
+    ...localFeedbacks.filter(
+      (lf) => !apiFeedbacks.some((af) => af.id === lf.id)
+    ),
+  ];
+  feedbacks.value = all;
+}
+
+onMounted(() => {
+  loadFeedbacks();
+  fetchUsers();
+});
 </script>
 
 <style scoped>

@@ -1,12 +1,24 @@
 <template>
   <div id="app">
     <NavBar />
+    <div
+      v-if="logoutMessage"
+      class="alert alert-warning text-center"
+      style="position: fixed; top: 10px; left: 0; right: 0; z-index: 2000"
+    >
+      {{ logoutMessage }}
+      <button class="btn btn-sm btn-link" @click="clearLogoutMessage">
+        Fermer
+      </button>
+    </div>
     <router-view />
     <Footer />
   </div>
 </template>
+
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
+import { useStore } from "vuex"; // Correction ici
 import { useStoreHelpers } from "@/composables/useStoreHelpers";
 import NavBar from "@/components/NavBar.vue";
 import Footer from "@/components/Footer.vue";
@@ -19,6 +31,12 @@ const {
   fetchAvailabilities,
   fetchUsers,
 } = useStoreHelpers();
+const store = useStore();
+const logoutMessage = computed(() => store.getters["auth/logoutMessage"]);
+
+function clearLogoutMessage() {
+  store.dispatch("auth/clearLogoutMessage");
+}
 
 onMounted(async () => {
   try {
@@ -34,6 +52,7 @@ onMounted(async () => {
   }
 });
 </script>
+
 <style>
 * {
   margin: 0;

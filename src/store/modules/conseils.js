@@ -1,7 +1,7 @@
-import conseilsData from "@/data/conseils.json";
+import axios from "axios";
 
 const state = {
-  conseils: [...conseilsData],
+  conseils: [],
 };
 
 const getters = {
@@ -9,30 +9,85 @@ const getters = {
   conseils: (state) => state.conseils,
 };
 
+function normalizeConseil(c) {
+  return {
+    ...c,
+    name: c.name || c.title || "",
+    description: c.description || c.content || "",
+    role: c.role || c.category || "",
+    img: c.img || "",
+  };
+}
+
 const mutations = {
   setConseils(state, conseils) {
-    state.conseils = conseils;
+    // Sécurise : toujours un tableau
+    if (!Array.isArray(conseils)) {
+      conseils = conseils ? [conseils] : [];
+    }
+    state.conseils = conseils.map(normalizeConseil);
   },
 };
 
 const actions = {
-  fetchConseils({ commit }) {
-    commit("setConseils", [...conseilsData]);
+  async fetchConseils({ commit }) {
+    const API_URL = process.env.VUE_APP_API_URL;
+    try {
+      const response = await axios.get(`${API_URL}/conseils`);
+      // Vérifie que la réponse est bien un tableau
+      const conseils = Array.isArray(response.data) ? response.data : [];
+      commit("setConseils", conseils);
+    } catch (e) {
+      // En cas d'erreur, on vide la liste pour éviter un affichage cassé
+      commit("setConseils", []);
+      // Optionnel : log ou dispatch d'une notification d'erreur
+    }
   },
-  addConseil({ commit, state }, conseil) {
-    const newConseil = { ...conseil, id: Date.now() };
-    const conseils = [...state.conseils, newConseil];
+  async addConseil({ commit }, conseil) {
+    const API_URL = process.env.VUE_APP_API_URL;
+    const token = localStorage.getItem("jwt");
+    // Adapter les champs pour le backend
+    const payload = {
+      title: conseil.name || conseil.title || "",
+      category: conseil.role || conseil.category || "",
+      content: conseil.description || conseil.content || "",
+      img: conseil.img || "",
+    };
+    const response = await axios.post(`${API_URL}/conseils`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    // Correction : s'assurer que response.data est un tableau
+    const conseils = Array.isArray(response.data)
+      ? response.data
+      : [response.data];
     commit("setConseils", conseils);
   },
-  deleteConseil({ commit, state }, id) {
-    const conseils = state.conseils.filter((c) => c.id !== id);
-    commit("setConseils", conseils);
+  async deleteConseil({ commit }, id) {
+    const API_URL = process.env.VUE_APP_API_URL;
+    const token = localStorage.getItem("jwt");
+    const response = await axios.delete(`${API_URL}/conseils/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    commit("setConseils", response.data);
   },
-  updateConseil({ commit, state }, updated) {
-    const conseils = state.conseils.map((c) =>
-      c.id === updated.id ? updated : c
+  async updateConseil({ commit }, updated) {
+    const API_URL = process.env.VUE_APP_API_URL;
+    const token = localStorage.getItem("jwt");
+    // Adapter les champs pour le backend
+    const payload = {
+      title: updated.name || updated.title || "",
+      category: updated.role || updated.category || "",
+      content: updated.description || updated.content || "",
+      img: updated.img || "",
+    };
+    const response = await axios.put(
+      `${API_URL}/conseils/${updated.id}`,
+      payload,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
     );
-    commit("setConseils", conseils);
+    commit("setConseils", response.data);
   },
 };
 

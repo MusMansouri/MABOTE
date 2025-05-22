@@ -1,10 +1,9 @@
-import usersData from "@/data/users.json";
 import axios from "axios";
 
 const state = {
   user: null,
   isAuthenticated: false,
-  users: [...usersData],
+  users: [],
 };
 
 const getters = {
@@ -15,19 +14,28 @@ const getters = {
   allUsers: (state) => state.users,
 };
 
+function normalizeUser(user) {
+  if (!user) return user;
+  return {
+    ...user,
+    firstName: user.firstName || user.prenom || "",
+    lastName: user.lastName || user.nom || "",
+  };
+}
+
 const mutations = {
   SET_USER(state, user) {
-    state.user = user;
+    state.user = normalizeUser(user);
     state.isAuthenticated = !!user;
   },
   ADD_USER(state, user) {
-    state.users.push(user);
+    state.users.push(normalizeUser(user));
   },
   UPDATE_USER(state, updatedUser) {
     const idx = state.users.findIndex((u) => u.id === updatedUser.id);
-    if (idx !== -1) state.users[idx] = { ...updatedUser };
+    if (idx !== -1) state.users[idx] = { ...normalizeUser(updatedUser) };
     if (state.user && state.user.id === updatedUser.id) {
-      state.user = { ...updatedUser };
+      state.user = { ...normalizeUser(updatedUser) };
     }
   },
 };
@@ -35,19 +43,14 @@ const mutations = {
 const actions = {
   async login({ commit }, { email, password }) {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        {
-          email,
-          password,
-        }
-      );
+      const API_URL = process.env.VUE_APP_API_URL;
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
       const { token, user } = response.data;
-
-      // Store the token in localStorage for persistence
       localStorage.setItem("jwt", token);
-
-      // Commit the user data to the Vuex store
+      localStorage.setItem("user", JSON.stringify(user));
       commit("SET_USER", user);
       return true;
     } catch (error) {
@@ -56,29 +59,52 @@ const actions = {
     }
   },
   logout({ commit }) {
-    // Clear the token from localStorage
     localStorage.removeItem("jwt");
-
-    // Reset the user state
+    localStorage.removeItem("user");
     commit("SET_USER", null);
   },
-  register({ commit, state }, userData) {
-    const exists = state.users.some((u) => u.email === userData.email);
-    if (exists) throw new Error("Cet email est déjà utilisé.");
-    const newUser = {
-      ...userData,
-      id: Date.now(),
-      role: "client",
-      phone: userData.phone || "",
-    };
-    commit("ADD_USER", newUser);
-    commit("SET_USER", newUser);
-    return newUser;
+  async register({ commit }, userData) {
+    try {
+      const API_URL = process.env.VUE_APP_API_URL;
+      const response = await axios.post(`${API_URL}/auth/register`, userData);
+      const { token, user } = response.data;
+      localStorage.setItem("jwt", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      commit("SET_USER", user);
+      return user;
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        throw new Error(error.response.data.error);
+      }
+      throw new Error("Erreur lors de l'inscription");
+    }
   },
-  updateUser({ commit }, user) {
-    commit("UPDATE_USER", user);
+  async updateUser({ commit, state }, user) {
+    try {
+      const API_URL = process.env.VUE_APP_API_URL;
+      const token = localStorage.getItem("jwt");
+      const response = await axios.put(`${API_URL}/users/${user.id}`, user, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      commit("UPDATE_USER", response.data);
+      // Si l'utilisateur connecté est modifié, on met à jour le state.user
+      if (state.user && state.user.id === user.id) {
+        commit("SET_USER", response.data);
+      }
+      return response.data;
+    } catch (error) {
+      throw new Error("Erreur lors de la mise à jour du profil utilisateur");
+    }
   },
 };
+
+// Restaure la session utilisateur depuis localStorage au chargement du store
+const savedToken = localStorage.getItem("jwt");
+const savedUser = localStorage.getItem("user");
+if (savedToken && savedUser) {
+  state.user = JSON.parse(savedUser);
+  state.isAuthenticated = true;
+}
 
 export default {
   namespaced: true,

@@ -17,13 +17,7 @@
             <h1 class="h4 fw-bold mb-2">{{ conseil.name }}</h1>
             <p class="text-muted mb-1">{{ conseil.role }}</p>
             <p class="mb-3">{{ conseil.description }}</p>
-            <div v-if="conseil.photo">
-              <img
-                :src="conseil.photo"
-                :alt="conseil.name"
-                style="width: 60px; height: 60px; border-radius: 50%"
-              />
-            </div>
+            <div v-if="conseil.photo"></div>
           </div>
         </div>
       </div>
@@ -47,6 +41,8 @@ const conseil = ref(null);
 
 onMounted(async () => {
   await store.dispatch("conseils/fetchConseils");
-  conseil.value = conseils.value.find((c) => String(c.id) === route.params.id);
+  // Recherche le conseil par ID, même si la liste est vide
+  conseil.value =
+    conseils.value.find((c) => String(c.id) === route.params.id) || null;
 });
 </script>

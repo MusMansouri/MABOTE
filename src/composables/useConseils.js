@@ -1,14 +1,13 @@
 import { ref } from "vue";
-import conseilsData from "@/data/conseils.json";
 import { useAuth } from "./useAuth";
 
-const conseils = ref([...conseilsData]);
+const conseils = ref([]);
 
 export function useConseils() {
   const { isAdmin } = useAuth();
 
   const fetchConseils = async () => {
-    conseils.value = [...conseilsData];
+    conseils.value = [];
   };
 
   const addConseil = (conseilData) => {

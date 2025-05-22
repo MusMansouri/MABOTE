@@ -28,113 +28,87 @@
     </div>
   </section>
 
-  <footer class="footer-main improved-footer">
-    <div class="container py-4">
-      <div class="footer-logo mb-3 d-flex justify-content-center">
-        <img
-          src="@/assets/logo.png"
-          alt="Logo Ma Boté"
-          height="56"
-          style="
-            border-radius: 1.2rem;
-            box-shadow: 0 2px 12px 0 rgba(185, 108, 83, 0.1);
-            background: #fff;
-            padding: 0.2rem 0.7rem;
-          "
-        />
+  <footer class="footer-refonte">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <img src="@/assets/logo.png" alt="Logo Ma Boté" class="footer-logo" />
+        <div class="footer-title">MABÔTÉ</div>
+        <div class="footer-slogan">Votre beauté, notre passion</div>
       </div>
-      <div
-        class="footer-links mb-3 d-flex flex-wrap justify-content-center gap-3"
-      >
-        <router-link to="/" class="footer-link">Accueil</router-link>
-        <router-link to="/about" class="footer-link">À propos</router-link>
-        <router-link to="/rituels" class="footer-link">Rituels</router-link>
-        <router-link to="/conseils" class="footer-link">Conseils</router-link>
-        <router-link to="/contact" class="footer-link">Contact</router-link>
-        <router-link to="/privacy" class="footer-link"
-          >Politique de confidentialité</router-link
-        >
+      <div class="footer-sections">
+        <div class="footer-section">
+          <h5>Navigation</h5>
+          <router-link to="/" class="footer-link">Accueil</router-link>
+          <router-link to="/about" class="footer-link">À propos</router-link>
+          <router-link to="/rituels" class="footer-link">Rituels</router-link>
+          <router-link to="/conseils" class="footer-link">Conseils</router-link>
+          <router-link to="/contact" class="footer-link">Contact</router-link>
+        </div>
+        <div class="footer-section">
+          <h5>Contact</h5>
+          <a href="mailto:contact@mabote.com" class="footer-link">
+            <i class="bi bi-envelope me-1"></i> contact@mabote.com
+          </a>
+          <a href="tel:+26547851245" class="footer-link">
+            <i class="bi bi-telephone me-1"></i> +2 654 785 1245
+          </a>
+          <div class="footer-socials">
+            <a
+              href="https://facebook.com/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Facebook"
+              class="footer-social"
+            >
+              <img src="@/assets/facebook.svg" alt="Facebook" />
+            </a>
+            <a
+              href="https://instagram.com/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Instagram"
+              class="footer-social"
+            >
+              <img src="@/assets/instagram.svg" alt="Instagram" />
+            </a>
+            <a
+              href="https://snapchat.com/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Snapchat"
+              class="footer-social"
+            >
+              <img src="@/assets/snapchat.svg" alt="Snapchat" />
+            </a>
+            <a
+              href="https://twitter.com/"
+              target="_blank"
+              rel="noopener"
+              aria-label="X-Twitter"
+              class="footer-social"
+            >
+              <img src="@/assets/twitter-x.svg" alt="X (Twitter)" />
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h5>Infos</h5>
+          <router-link to="/privacy" class="footer-link"
+            >Politique de confidentialité</router-link
+          >
+          <router-link to="/cgv" class="footer-link">CGV</router-link>
+          <div class="footer-hours">
+            <span><i class="bi bi-clock me-1"></i> Lun-Sam : 9h - 19h</span>
+            <span
+              ><i class="bi bi-geo-alt me-1"></i> 123, Rue Beauté, Paris</span
+            >
+          </div>
+        </div>
       </div>
-      <div
-        class="footer-contact mb-3 d-flex flex-wrap justify-content-center align-items-center gap-3"
-      >
-        <a href="mailto:contact@mabote.com" class="footer-contact-link">
-          <i class="bi bi-envelope me-1 text-primary"></i> contact@mabote.com
-        </a>
-        <span class="mx-2 d-none d-md-inline">|</span>
-        <a href="tel:+26547851245" class="footer-contact-link">
-          <i class="bi bi-telephone me-1 text-success"></i> +2 654 785 1245
-        </a>
-      </div>
-      <div
-        class="footer-socials mb-3 d-flex justify-content-center gap-3 flex-wrap"
-      >
-        <a
-          href="https://facebook.com/"
-          target="_blank"
-          rel="noopener"
-          aria-label="Facebook"
-          class="footer-social-link social-circle social-facebook"
-        >
-          <img
-            src="@/assets/facebook.svg"
-            alt="Facebook"
-            width="24"
-            height="24"
-            style="display: block"
-          />
-        </a>
-        <a
-          href="https://instagram.com/"
-          target="_blank"
-          rel="noopener"
-          aria-label="Instagram"
-          class="footer-social-link social-circle social-instagram"
-        >
-          <img
-            src="@/assets/instagram.svg"
-            alt="Instagram"
-            width="24"
-            height="24"
-            style="display: block"
-          />
-        </a>
-        <a
-          href="https://snapchat.com/"
-          target="_blank"
-          rel="noopener"
-          aria-label="Snapchat"
-          class="footer-social-link social-circle social-snapchat"
-        >
-          <img
-            src="@/assets/snapchat.svg"
-            alt="Snapchat"
-            width="24"
-            height="24"
-            style="display: block"
-          />
-        </a>
-        <a
-          href="https://twitter.com/"
-          target="_blank"
-          rel="noopener"
-          aria-label="X-Twitter"
-          class="footer-social-link social-circle social-x"
-        >
-          <img
-            src="@/assets/twitter-x.svg"
-            alt="X (Twitter)"
-            width="24"
-            height="24"
-            style="display: block"
-          />
-        </a>
-      </div>
-      <div class="footer-copyright mt-2">
-        <hr style="opacity: 0.18; margin-bottom: 0.7rem" />
-        &copy; {{ new Date().getFullYear() }}
-        <span class="fw-bold">MABÔTÉ</span>. Tous droits réservés.
-      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; {{ new Date().getFullYear() }}
+      <span class="fw-bold">MABÔTÉ</span> — Tous droits réservés.
     </div>
   </footer>
 </template>
@@ -246,230 +220,186 @@ p {
 }
 
 /* footer styles */
-.footer-main {
+.footer-refonte {
   background: linear-gradient(120deg, #fff6f1 0%, #ffeaea 100%);
-  border-top: 2px solid #e7d9d3;
   color: #8e4f3d;
-  font-family: "Baskervville", serif;
-  font-size: 1.12rem;
-  text-align: center;
+  font-family: "Inter", sans-serif;
+  padding: 2.2rem 0 0.5rem 0;
+  border-top: 2px solid #e7d9d3;
   box-shadow: 0 -2px 16px 0 rgba(185, 108, 83, 0.08);
-  padding: 0.7rem 0 0.3rem 0;
-  position: relative;
 }
-.footer-logo img {
-  height: 56px;
-  margin-bottom: 0.1rem;
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 1.5rem;
+}
+.footer-brand {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.footer-logo {
+  height: 60px;
   border-radius: 1.2rem;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(185, 108, 83, 0.1);
+  padding: 0.2rem 0.7rem;
 }
-.footer-links {
-  margin-bottom: 0.7rem;
-  gap: 1.2rem;
+.footer-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  color: #b96c53;
+  margin-top: 0.2rem;
+}
+.footer-slogan {
+  font-size: 1.08rem;
+  color: #45241b;
+  opacity: 0.8;
+}
+.footer-sections {
+  flex: 3 1 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  justify-content: flex-end;
+}
+.footer-section {
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.footer-section h5 {
+  font-size: 1.09rem;
+  font-weight: 600;
+  color: #b96c53;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
 }
 .footer-link {
-  color: #b96c53;
-  margin: 0 0.7rem;
+  color: #8e4f3d;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 1.08rem;
-  letter-spacing: 0.01em;
-  transition: color 0.18s, text-shadow 0.18s;
-  border-radius: 0.7rem;
-  padding: 0.1rem 0.7rem;
+  font-size: 1.04rem;
+  margin-bottom: 0.2rem;
+  transition: color 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 .footer-link:hover,
 .footer-link:focus {
-  color: #fff;
-  background: #b96c53;
-  text-shadow: 0 2px 8px #b96c53;
-  text-decoration: none;
-}
-.footer-contact {
-  color: #45241b;
-  font-size: 1.04rem;
-  margin-bottom: 0.5rem;
-  gap: 1.2rem;
-}
-.footer-contact-link {
-  color: #45241b;
-  text-decoration: none;
-  margin: 0 0.2rem;
-  font-weight: 500;
-  transition: color 0.18s, text-shadow 0.18s;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-}
-.footer-contact-link:hover,
-.footer-contact-link:focus {
   color: #b96c53;
-  text-shadow: 0 2px 8px #b96c53;
   text-decoration: underline;
 }
 .footer-socials {
-  margin-bottom: 0.5rem;
-  gap: 0.5rem;
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
 }
-.footer-social-link {
-  color: #b96c53;
-  font-size: 1.45rem;
-  margin: 0 0.18rem;
-  transition: color 0.18s, background 0.18s, box-shadow 0.18s;
-  vertical-align: middle;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.social-circle {
-  background: #fff;
+.footer-social img {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  width: 2.3em;
-  height: 2.3em;
+  background: #fff;
   box-shadow: 0 2px 8px 0 rgba(185, 108, 83, 0.08);
-  border: 1.5px solid #f3e2db;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  transition: box-shadow 0.18s, filter 0.18s;
+  filter: grayscale(0.1) brightness(0.97);
 }
-.social-circle:hover,
-.social-circle:focus {
-  background: #ffeaea;
-  color: #a45947;
+.footer-social:hover img,
+.footer-social:focus img {
   box-shadow: 0 4px 16px 0 rgba(185, 108, 83, 0.13);
-}
-
-/* Ajout styles personnalisés pour chaque réseau */
-.social-facebook {
-  border-color: #1877f3;
-}
-.social-facebook:hover,
-.social-facebook:focus {
-  background: #1877f3;
-  color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(24, 119, 243, 0.13);
-}
-.social-instagram {
-  border-color: #e4405f;
-}
-.social-instagram:hover,
-.social-instagram:focus {
-  background: linear-gradient(135deg, #fdc468 0%, #df4996 100%);
-  color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(223, 73, 150, 0.13);
-}
-.social-snapchat {
-  border-color: #fffc00;
-}
-.social-snapchat:hover,
-.social-snapchat:focus {
-  background: #fffc00;
-  color: #000;
-  box-shadow: 0 4px 16px 0 rgba(255, 252, 0, 0.13);
-}
-.social-x {
-  border-color: #222;
-}
-.social-x:hover,
-.social-x:focus {
-  background: #222;
-  color: #fff;
-  box-shadow: 0 4px 16px 0 rgba(34, 34, 34, 0.13);
-}
-.footer-social-link img {
-  filter: grayscale(0.15) brightness(0.95);
-  transition: filter 0.18s;
-}
-.footer-social-link:hover img,
-.footer-social-link:focus img {
   filter: none;
 }
-@media (max-width: 600px) {
-  .improved-footer {
-    font-size: 0.97rem;
-    padding: 0.1rem 0 0.1rem 0;
+.footer-hours {
+  margin-top: 0.5rem;
+  font-size: 0.98rem;
+  color: #45241b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.footer-bottom {
+  text-align: center;
+  font-size: 1.01rem;
+  color: #b96c53;
+  margin-top: 2.2rem;
+  padding-bottom: 0.5rem;
+  border-top: 1px solid #e7d9d3;
+  opacity: 0.85;
+}
+
+/* Responsive improvements */
+@media (max-width: 1100px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 0 0.5rem;
   }
-  .footer-logo img {
-    height: 32px;
+  .footer-sections {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+  }
+  .footer-section {
+    align-items: center;
+    min-width: unset;
+  }
+  .footer-brand {
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+}
+@media (max-width: 700px) {
+  .footer-refonte {
+    padding: 1.2rem 0 0.2rem 0;
+    font-size: 0.97rem;
+  }
+  .footer-logo {
+    height: 38px;
+  }
+  .footer-title {
+    font-size: 1.08rem;
+  }
+  .footer-sections {
+    gap: 1rem;
+  }
+  .footer-section h5 {
+    font-size: 1rem;
+  }
+  .footer-bottom {
+    font-size: 0.93rem;
+    margin-top: 1.2rem;
+  }
+  .footer-section {
+    padding-bottom: 0.7rem;
+  }
+}
+@media (max-width: 430px) {
+  .footer-refonte {
+    padding: 0.7rem 0 0.1rem 0;
+  }
+  .footer-logo {
+    height: 28px;
+  }
+  .footer-title {
+    font-size: 0.98rem;
+  }
+  .footer-section h5 {
+    font-size: 0.93rem;
   }
   .footer-link {
-    margin: 0 0.3rem;
-    font-size: 0.98rem;
-    padding: 0.1rem 0.3rem;
+    font-size: 0.93rem;
   }
-  .footer-social-link {
-    font-size: 1.1rem;
-    margin: 0 0.08rem;
-  }
-  .social-circle {
-    width: 1.7em;
-    height: 1.7em;
-  }
-}
-
-/* Styles globaux pour les boutons */
-.btn,
-button,
-input[type="submit"],
-input[type="button"] {
-  font-family: "Inter", sans-serif;
-  font-weight: 500;
-  border-radius: 1.5rem;
-  padding: 0.28rem 0.85rem;
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
-  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s,
-    transform 0.18s;
-  box-shadow: 0 1.5px 6px 0 rgba(185, 108, 83, 0.06);
-  border: 1px solid #b96c53;
-  background: #fff;
-  color: #b96c53;
-  outline: none;
-  min-width: 70px;
-  max-width: 170px;
-  line-height: 1.15;
-}
-.btn-lg,
-button.btn-lg {
-  padding: 0.38rem 1.05rem;
-  font-size: 1.01rem;
-}
-.btn-sm,
-button.btn-sm {
-  padding: 0.16rem 0.55rem;
-  font-size: 0.89rem;
-}
-.btn,
-button {
-  min-width: 70px;
-  max-width: 170px;
-}
-.btn .bi,
-button .bi {
-  font-size: 1em;
-}
-
-/* Ajustement pour les boutons du footer et des réseaux sociaux */
-.footer-social-link {
-  min-width: unset;
-  max-width: unset;
-  padding: 0;
-}
-
-/* Ajustement pour les boutons dans les formulaires */
-form .btn,
-form button,
-form input[type="submit"] {
-  min-width: 80px;
-  max-width: 170px;
-}
-
-/* Pour les boutons ronds (icônes seules) */
-.btn-circle {
-  border-radius: 50%;
-  width: 1.7em;
-  height: 1.7em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  font-size: 1em;
 }
 </style>

@@ -10,36 +10,17 @@
     </header>
     <div class="container">
       <div
+        v-if="conseils.length === 0"
+        class="alert alert-info text-center mb-4"
+      >
+        Aucun conseil à afficher pour le moment.
+      </div>
+      <div
+        v-else
         class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center"
       >
         <div v-for="conseil in conseils" :key="conseil.id" class="col d-flex">
-          <router-link
-            :to="`/conseils/${conseil.id}`"
-            class="w-100 text-decoration-none conseil-card-link"
-            style="color: inherit"
-          >
-            <article class="card h-100 shadow-sm w-100 conseil-card-hover">
-              <img
-                v-if="conseil.img"
-                :src="conseil.img"
-                :alt="conseil.name"
-                class="card-img-top"
-              />
-              <div class="card-body d-flex flex-column justify-content-between">
-                <div>
-                  <h3 class="h6 fw-bold mb-1 text-center">
-                    {{ conseil.name }}
-                  </h3>
-                  <p class="small text-muted mb-0 text-center">
-                    {{ conseil.role }}
-                  </p>
-                  <p class="mt-2 text-center" v-if="conseil.description">
-                    {{ conseil.description }}
-                  </p>
-                </div>
-              </div>
-            </article>
-          </router-link>
+          <ConseilCard :conseil="conseil" class="w-100" />
         </div>
       </div>
     </div>
@@ -49,6 +30,7 @@
 <script setup>
 import { onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import ConseilCard from "@/components/ConseilCard.vue";
 
 const store = useStore();
 const conseils = computed(() => store.getters["conseils/allConseils"] || []);

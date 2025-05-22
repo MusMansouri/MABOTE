@@ -162,7 +162,10 @@
             <i class="bi bi-chat-dots me-2"></i>
             Vos feedbacks
           </h2>
-          <div v-if="feedbacks.length === 0" class="alert alert-info">
+          <div v-if="loadingFeedbacks" class="alert alert-info">
+            Chargement...
+          </div>
+          <div v-else-if="feedbacks.length === 0" class="alert alert-info">
             Aucun feedback trouvé.
           </div>
           <div v-else>
@@ -202,18 +205,59 @@
                   </button>
                 </div>
                 <div class="flex-grow-1">
-                  <div class="fw-bold mb-1">{{ fb.message }}</div>
-                  <div class="text-muted small">
-                    {{ new Date(fb.createdAt).toLocaleDateString() }}
+                  <div v-if="editingFeedbackId === fb.id">
+                    <textarea
+                      v-model="editFeedbackMessage"
+                      class="form-control mb-2"
+                      rows="2"
+                    ></textarea>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      class="form-control mb-2"
+                      @change="onEditFeedbackPhotoChange"
+                    />
+                    <span v-if="editFeedbackPhoto" class="ms-2"
+                      >Image sélectionnée</span
+                    >
+                    <div class="d-flex gap-2 mt-2">
+                      <button
+                        class="btn btn-success btn-sm"
+                        @click="saveEditFeedback(fb)"
+                      >
+                        <i class="bi bi-check"></i> Enregistrer
+                      </button>
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        @click="cancelEditFeedback"
+                      >
+                        <i class="bi bi-x"></i> Annuler
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="fw-bold mb-1">{{ fb.message }}</div>
+                    <div class="text-muted small">
+                      {{ new Date(fb.createdAt).toLocaleDateString() }}
+                    </div>
                   </div>
                 </div>
-                <button
-                  class="btn btn-outline-danger btn-sm ms-2"
-                  @click="deleteFeedback(fb.id)"
-                  aria-label="Supprimer ce feedback"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
+                <div class="d-flex flex-column gap-1 ms-2">
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    v-if="editingFeedbackId !== fb.id"
+                    @click="startEditFeedback(fb)"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    @click="deleteFeedback(fb.id)"
+                    aria-label="Supprimer ce feedback"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
               </li>
             </ul>
           </div>
@@ -294,6 +338,7 @@
               required
               aria-label="{{ t('email') }}"
               @blur="validateEmail"
+              disabled
             />
             <input
               v-model="editProfile.phone"
@@ -382,7 +427,7 @@
 import Toast from "@/components/Toast.vue";
 import { ref, computed, watchEffect } from "vue";
 import { useStore } from "vuex";
-import feedbacksData from "@/data/feedbacks.json";
+import axios from "axios";
 
 const store = useStore();
 const defaultAvatar =
@@ -392,7 +437,73 @@ const editProfile = ref({ firstName: "", lastName: "", email: "", phone: "" });
 const errorMessage = ref("");
 const emailError = ref("");
 const phoneError = ref("");
-const feedbacksAll = ref([...feedbacksData]);
+const feedbacksAll = ref([]);
+const loadingFeedbacks = ref(false);
+const editingFeedbackId = ref(null);
+const editFeedbackMessage = ref("");
+const editFeedbackPhoto = ref("");
+
+// Synchronisation feedbacksAll <-> localStorage
+function loadFeedbacksAll() {
+  const stored = localStorage.getItem("feedbacksAll");
+  feedbacksAll.value = stored ? JSON.parse(stored) : [];
+}
+function saveFeedbacksAll() {
+  localStorage.setItem("feedbacksAll", JSON.stringify(feedbacksAll.value));
+}
+
+// Charger les feedbacks depuis l'API et fusionner avec localStorage
+async function fetchAllFeedbacks() {
+  loadingFeedbacks.value = true;
+  let apiFeedbacks = [];
+  const user = store.getters["auth/user"];
+  try {
+    const API_URL = process.env.VUE_APP_API_URL || "";
+    const res = await axios.get(`${API_URL}/feedbacks`);
+    apiFeedbacks = Array.isArray(res.data)
+      ? res.data
+          .filter((fb) => (user ? fb.UserId === user.id : true))
+          .map((fb) => ({
+            id: fb.id,
+            userId: fb.UserId, // Correction ici
+            message: fb.comment || fb.message,
+            photo: fb.photo || "",
+            createdAt: fb.createdAt,
+          }))
+      : [];
+    console.log(
+      "API feedbacks:",
+      res.data,
+      "User:",
+      user?.id,
+      "apiFeedbacks:",
+      apiFeedbacks
+    );
+  } catch (e) {
+    apiFeedbacks = [];
+  }
+  loadFeedbacksAll();
+  // Ne garder que les feedbacks de l'utilisateur connecté
+  const all = [
+    ...apiFeedbacks,
+    ...feedbacksAll.value.filter(
+      (lf) =>
+        (user ? lf.userId === user.id : true) &&
+        !apiFeedbacks.some((af) => af.id === lf.id)
+    ),
+  ];
+  feedbacksAll.value = all;
+  saveFeedbacksAll();
+  loadingFeedbacks.value = false;
+}
+
+// Charger au montage
+fetchAllFeedbacks();
+
+watchEffect(() => {
+  saveFeedbacksAll();
+});
+
 const feedbacks = computed(() => {
   const user = store.getters["auth/user"];
   if (!user) return [];
@@ -402,29 +513,121 @@ const feedbackMessage = ref("");
 const feedbackPhoto = ref("");
 const feedbackError = ref("");
 
-// i18n simulation
-const messages = {
-  firstName: "Prénom",
-  lastName: "Nom",
-  editProfileTitle: "Modifier mon profil",
-  name: "Nom",
-  email: "E-mail",
-  phone: "Téléphone",
-  save: "Enregistrer",
-  cancel: "Annuler",
-  editAppointmentTitle: "Modifier le rendez-vous",
-  date: "Date",
-  time: "Heure",
-  upcomingAppointments: "Mes rendez-vous à venir",
-  noUpcomingAppointments: "Aucun rendez-vous à venir.",
-  previous: "Précédent",
-  next: "Suivant",
-  invalidEmail: "Format d'e-mail invalide.",
-  invalidPhone: "Format de téléphone invalide.",
-  updateProfileError: "Erreur lors de la mise à jour du profil.",
-  updateAppointmentError: "Erreur lors de la modification du rendez-vous.",
-};
-const t = (key) => messages[key] || key;
+async function submitFeedback() {
+  feedbackError.value = "";
+  if (!feedbackMessage.value) {
+    feedbackError.value = "Le message est requis.";
+    return;
+  }
+  const user = store.getters["auth/user"];
+  const token = localStorage.getItem("jwt");
+  const API_URL = process.env.VUE_APP_API_URL || "";
+  const payload = {
+    comment: feedbackMessage.value,
+    photo: feedbackPhoto.value || "",
+    UserId: user?.id, // Correction ici
+  };
+  if (user && typeof user.id === "number" && token) {
+    try {
+      await axios.post(`${API_URL}/feedbacks`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      feedbackMessage.value = "";
+      feedbackPhoto.value = "";
+      await fetchAllFeedbacks();
+      return;
+    } catch (e) {
+      let msg = "Erreur lors de l'envoi du feedback.";
+      if (e.response && e.response.data && e.response.data.message) {
+        msg += `\n${e.response.data.message}`;
+      }
+      feedbackError.value = msg;
+      console.error(e);
+    }
+  }
+  // Si pas connecté ou erreur API, fallback local
+  feedbacksAll.value.push({
+    id: Date.now(),
+    userId: user?.id,
+    message: feedbackMessage.value,
+    photo: feedbackPhoto.value || "",
+    createdAt: new Date().toISOString(),
+  });
+  feedbackMessage.value = "";
+  feedbackPhoto.value = "";
+  saveFeedbacksAll();
+}
+
+function removeFeedbackPhoto(feedbackId) {
+  const fb = feedbacksAll.value.find((f) => f.id === feedbackId);
+  if (fb) fb.photo = "";
+}
+async function deleteFeedback(feedbackId) {
+  if (confirm("Voulez-vous vraiment supprimer ce feedback ?")) {
+    // Vérifie si l'id est un id BDD (numérique, pas généré localement)
+    const isDbId = typeof feedbackId === "number" && feedbackId < 1e12; // Date.now() > 1e12
+    if (isDbId) {
+      const token = localStorage.getItem("jwt");
+      const API_URL = process.env.VUE_APP_API_URL || "";
+      try {
+        await axios.delete(`${API_URL}/feedbacks/${feedbackId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Retirer du local
+        feedbacksAll.value = feedbacksAll.value.filter(
+          (fb) => fb.id !== feedbackId
+        );
+        await fetchAllFeedbacks();
+      } catch (e) {
+        let msg = "Erreur lors de la suppression du feedback côté serveur.";
+        if (e.response && e.response.data && e.response.data.message) {
+          msg += `\n${e.response.data.message}`;
+        }
+        alert(msg);
+        console.error(e);
+      }
+    } else {
+      // Feedback local uniquement
+      feedbacksAll.value = feedbacksAll.value.filter(
+        (fb) => fb.id !== feedbackId
+      );
+      saveFeedbacksAll();
+    }
+  }
+}
+
+function startEditFeedback(fb) {
+  editingFeedbackId.value = fb.id;
+  editFeedbackMessage.value = fb.message;
+  editFeedbackPhoto.value = fb.photo || "";
+}
+function cancelEditFeedback() {
+  editingFeedbackId.value = null;
+  editFeedbackMessage.value = "";
+  editFeedbackPhoto.value = "";
+}
+function saveEditFeedback(fb) {
+  if (!editFeedbackMessage.value) return;
+  const idx = feedbacksAll.value.findIndex((f) => f.id === fb.id);
+  if (idx !== -1) {
+    feedbacksAll.value[idx] = {
+      ...feedbacksAll.value[idx],
+      message: editFeedbackMessage.value,
+      photo: editFeedbackPhoto.value,
+    };
+  }
+  cancelEditFeedback();
+}
+function onEditFeedbackPhotoChange(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      editFeedbackPhoto.value = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
 function onProfileImageChange(e) {
   const file = e.target.files[0];
@@ -463,14 +666,27 @@ async function saveProfile() {
   validateEmail();
   validatePhone();
   if (emailError.value || phoneError.value) return;
+  const user = store.getters["auth/user"];
+  const token = localStorage.getItem("jwt");
+  const API_URL = process.env.VUE_APP_API_URL || "";
   try {
-    await store.dispatch("auth/updateUser", {
-      ...store.getters["auth/user"],
-      ...editProfile.value,
-    });
+    // Envoi des données modifiées à l'API sans le champ email
+    const res = await axios.put(
+      `${API_URL}/users/${user.id}`,
+      {
+        nom: editProfile.value.firstName,
+        prenom: editProfile.value.lastName,
+        telephone: editProfile.value.phone,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    await store.dispatch("auth/setUser", res.data);
     editProfileModal.value = false;
   } catch (e) {
     errorMessage.value = t("updateProfileError");
+    console.error(e);
   }
 }
 
@@ -500,37 +716,6 @@ function onFeedbackPhotoChange(e) {
       feedbackPhoto.value = ev.target.result;
     };
     reader.readAsDataURL(file);
-  }
-}
-
-function submitFeedback() {
-  feedbackError.value = "";
-  if (!feedbackMessage.value) {
-    feedbackError.value = "Le message est requis.";
-    return;
-  }
-  const user = store.getters["auth/user"];
-  feedbacksAll.value.push({
-    id: Date.now(),
-    userId: user.id,
-    message: feedbackMessage.value,
-    photo: feedbackPhoto.value || "",
-    createdAt: new Date().toISOString(),
-  });
-  feedbackMessage.value = "";
-  feedbackPhoto.value = "";
-}
-
-// Ajout de la suppression de feedback et de la photo du feedback
-function removeFeedbackPhoto(feedbackId) {
-  const fb = feedbacksAll.value.find((f) => f.id === feedbackId);
-  if (fb) fb.photo = "";
-}
-function deleteFeedback(feedbackId) {
-  if (confirm("Voulez-vous vraiment supprimer ce feedback ?")) {
-    feedbacksAll.value = feedbacksAll.value.filter(
-      (fb) => fb.id !== feedbackId
-    );
   }
 }
 
@@ -571,7 +756,9 @@ const futureAppointments = computed(() => {
   return store.getters["appointments/myAppointments"]
     .filter((a) => a.status !== "cancelled" && a.date >= today)
     .sort(
-      (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
+      (a, b) =>
+        a.date.localeCompare(b.date) ||
+        (a.heure || "").localeCompare(b.heure || "")
     );
 });
 
@@ -604,6 +791,32 @@ function closeEditModal() {
   showEditModal.value = false;
   editAppointment.value = {};
 }
+
+// i18n simulation
+const messages = {
+  firstName: "Prénom",
+  lastName: "Nom",
+  editProfileTitle: "Modifier mon profil",
+  name: "Nom",
+  email: "E-mail",
+  phone: "Téléphone",
+  save: "Enregistrer",
+  cancel: "Annuler",
+  editAppointmentTitle: "Modifier le rendez-vous",
+  date: "Date",
+  time: "Heure",
+  upcomingAppointments: "Mes rendez-vous à venir",
+  noUpcomingAppointments: "Aucun rendez-vous à venir.",
+  previous: "Précédent",
+  next: "Suivant",
+  invalidEmail: "Format d'e-mail invalide.",
+  invalidPhone: "Format de téléphone invalide.",
+  updateProfileError: "Erreur lors de la mise à jour du profil.",
+  updateAppointmentError: "Erreur lors de la modification du rendez-vous.",
+};
+const t = (key) => messages[key] || key;
+// expose t pour le template
+defineExpose({ t });
 </script>
 
 <style scoped>

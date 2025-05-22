@@ -273,6 +273,7 @@
                     border-radius: 8px;
                     margin-right: 10px;
                   "
+                  @error="onRitualImgError"
                 />
                 <strong>{{ ritual.name }}</strong>
                 <span class="text-muted ms-2"
@@ -626,6 +627,48 @@
             </li>
           </ul>
         </div>
+        <div class="col-md-6">
+          <h2 class="h5 mb-3"><i class="bi bi-person-x me-2"></i>Suspendus</h2>
+          <ul class="list-group">
+            <li
+              v-for="user in store.getters['users/allUsers'].filter(
+                (u) => u.role === 'suspendu' || u.status === 'suspendu'
+              )"
+              :key="user.id"
+              class="list-group-item d-flex justify-content-between align-items-center user-item"
+            >
+              <span>
+                <img
+                  v-if="user.photo"
+                  :src="user.photo"
+                  alt=""
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    object-fit: cover;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                  "
+                />
+                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                <span class="text-muted">({{ user.email }})</span>
+                <span class="badge bg-danger ms-2">Suspendu</span>
+              </span>
+              <button
+                class="btn btn-sm btn-outline-primary ms-2"
+                @click="openEditUser(user)"
+                :disabled="user.id === 1"
+                :title="
+                  user.id === 1
+                    ? 'Modification du rôle interdite pour l\'administrateur principal'
+                    : 'Modifier'
+                "
+              >
+                Modifier
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -639,11 +682,7 @@
           <h2 class="h5 mb-3">
             <i class="bi bi-calendar-plus me-2"></i>Ajouter une disponibilité
           </h2>
-          <form
-            @submit.prevent="
-              store.dispatch('appointments/addAvailability', newAvailability)
-            "
-          >
+          <form @submit.prevent="handleAddAvailability">
             <div class="mb-3">
               <label for="availabilityDate" class="form-label">Date</label>
               <input
@@ -707,17 +746,75 @@
                 {{ formatDate(availability.date) }} :
                 {{ availability.startTime }} - {{ availability.endTime }}
               </span>
-              <button
-                @click="confirmAndDeleteAvailability(availability.id)"
-                class="btn btn-danger btn-sm"
-                :aria-label="
-                  'Supprimer la disponibilité du ' + availability.date
-                "
-              >
-                <i class="bi bi-trash">Annuler</i>
-              </button>
+              <div>
+                <button
+                  @click="openEditAvailability(availability)"
+                  class="btn btn-outline-primary btn-sm me-2"
+                  :aria-label="
+                    'Modifier la disponibilité du ' + availability.date
+                  "
+                >
+                  <i class="bi bi-pencil"></i> Modifier
+                </button>
+                <button
+                  @click="confirmAndDeleteAvailability(availability.id)"
+                  class="btn btn-danger btn-sm"
+                  :aria-label="
+                    'Supprimer la disponibilité du ' + availability.date
+                  "
+                >
+                  <i class="bi bi-trash">Annuler</i>
+                </button>
+              </div>
             </li>
           </ul>
+          <!-- Modal d'édition disponibilité -->
+          <div v-if="editAvailabilityModal" class="modal-backdrop">
+            <div class="modal-dialog">
+              <div class="modal-content p-3">
+                <h5>Modifier la disponibilité</h5>
+                <form @submit.prevent="saveEditAvailability">
+                  <div class="mb-2">
+                    <label class="form-label">Date</label>
+                    <input
+                      v-model="editAvailabilityData.date"
+                      type="date"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">Heure de début</label>
+                    <input
+                      v-model="editAvailabilityData.startTime"
+                      type="time"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label">Heure de fin</label>
+                    <input
+                      v-model="editAvailabilityData.endTime"
+                      type="time"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm me-2">
+                    Enregistrer
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    @click="closeEditAvailability"
+                  >
+                    Annuler
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="row">
@@ -759,10 +856,10 @@
                     )
                     .sort((a, b) =>
                       appointmentSort === 'asc'
-                        ? a.date.localeCompare(b.date) ||
-                          a.time.localeCompare(b.time)
-                        : b.date.localeCompare(a.date) ||
-                          b.time.localeCompare(a.time)
+                        ? (a.date || '').localeCompare(b.date || '') ||
+                          (a.time || '').localeCompare(b.time || '')
+                        : (b.date || '').localeCompare(a.date || '') ||
+                          (b.time || '').localeCompare(a.time || '')
                     )"
                   :key="appointment.id"
                 >
@@ -893,7 +990,9 @@ const upcomingAppointments = computed(() => {
   return store.getters["appointments/allAppointments"]
     .filter((a) => a.status !== "cancelled" && a.date >= today)
     .sort(
-      (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
+      (a, b) =>
+        (a.date || "").localeCompare(b.date || "") ||
+        (a.time || "").localeCompare(b.time || "")
     )
     .slice(0, 5);
 });
@@ -918,8 +1017,9 @@ const handleAddRitual = () => {
   };
 };
 
-const handleAddConseil = () => {
-  store.dispatch("conseils/addConseil", newConseil.value);
+const handleAddConseil = async () => {
+  await store.dispatch("conseils/addConseil", newConseil.value);
+  await store.dispatch("conseils/fetchConseils");
   newConseil.value = { name: "", role: "", description: "", img: "" };
 };
 
@@ -927,6 +1027,30 @@ const newAvailability = ref({ date: "", startTime: "", endTime: "" });
 const availabilityFilter = ref("");
 const appointmentFilter = ref("");
 const appointmentSort = ref("asc");
+
+// --- Availability Edit Modal State ---
+const editAvailabilityModal = ref(false);
+const editAvailabilityData = ref({});
+const selectedAvailability = ref(null);
+
+function openEditAvailability(availability) {
+  editAvailabilityData.value = { ...availability };
+  editAvailabilityModal.value = true;
+  selectedAvailability.value = availability;
+}
+function closeEditAvailability() {
+  editAvailabilityModal.value = false;
+  editAvailabilityData.value = {};
+  selectedAvailability.value = null;
+}
+async function saveEditAvailability() {
+  await store.dispatch(
+    "appointments/updateAvailability",
+    editAvailabilityData.value
+  );
+  await store.dispatch("appointments/fetchAvailabilities");
+  closeEditAvailability();
+}
 
 const selectedRituel = ref(null);
 const selectedConseil = ref(null);
@@ -965,8 +1089,9 @@ function closeEditConseil() {
   editConseilData.value = {};
   selectedConseil.value = null;
 }
-function saveEditConseil() {
-  store.dispatch("conseils/updateConseil", editConseilData.value);
+async function saveEditConseil() {
+  await store.dispatch("conseils/updateConseil", editConseilData.value);
+  await store.dispatch("conseils/fetchConseils");
   closeEditConseil();
 }
 
@@ -980,8 +1105,9 @@ function closeEditUser() {
   editUserModal.value = false;
   editUser.value = {};
 }
-function saveEditUser() {
-  store.dispatch("users/updateUser", { ...editUser.value });
+async function saveEditUser() {
+  await store.dispatch("users/updateUser", { ...editUser.value });
+  await store.dispatch("users/fetchUsers");
   closeEditUser();
 }
 
@@ -995,7 +1121,13 @@ function onRitualImageChange(e) {
   const file = e.target.files[0];
   if (file) {
     fileToBase64(file, (base64) => {
-      newRitual.value.image = base64;
+      // Ajout du préfixe si absent
+      if (!base64.startsWith("data:image/")) {
+        const mime = file.type || "image/png";
+        newRitual.value.image = `data:${mime};base64,${base64}`;
+      } else {
+        newRitual.value.image = base64;
+      }
     });
   }
 }
@@ -1027,6 +1159,10 @@ function onEditConseilImageChange(e) {
   }
 }
 
+function onRitualImgError(e) {
+  e.target.src = require("@/assets/rit.png");
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return "";
   const [y, m, d] = dateStr.split("-");
@@ -1039,17 +1175,53 @@ function confirmAndDeleteRitual(ritualId) {
   }
 }
 
-function confirmAndDeleteConseil(conseilId) {
+async function confirmAndDeleteConseil(conseilId) {
   if (confirm("Êtes-vous sûr de vouloir supprimer ce conseil ?")) {
-    store.dispatch("conseils/deleteConseil", conseilId);
+    await store.dispatch("conseils/deleteConseil", conseilId);
+    await store.dispatch("conseils/fetchConseils");
   }
 }
 
-function confirmAndDeleteAvailability(availabilityId) {
+async function confirmAndDeleteAvailability(availabilityId) {
   if (confirm("Êtes-vous sûr de vouloir supprimer cette disponibilité ?")) {
-    store.dispatch("appointments/deleteAvailability", availabilityId);
+    await store.dispatch("appointments/deleteAvailability", availabilityId);
+    await store.dispatch("appointments/fetchAvailabilities");
   }
 }
+
+const handleAddAvailability = async () => {
+  // Prevent empty or duplicate entries
+  if (
+    !newAvailability.value.date ||
+    !newAvailability.value.startTime ||
+    !newAvailability.value.endTime
+  ) {
+    alert("Veuillez remplir tous les champs de la disponibilité.");
+    return;
+  }
+  // Optionally: prevent duplicate for same date/start/end
+  const exists = store.getters["appointments/availabilities"].some(
+    (a) =>
+      a.date === newAvailability.value.date &&
+      a.startTime === newAvailability.value.startTime &&
+      a.endTime === newAvailability.value.endTime
+  );
+  if (exists) {
+    alert("Cette disponibilité existe déjà.");
+    return;
+  }
+  try {
+    await store.dispatch("appointments/addAvailability", {
+      ...newAvailability.value,
+    });
+    newAvailability.value = { date: "", startTime: "", endTime: "" };
+  } catch (e) {
+    alert(
+      "Erreur lors de l'ajout de la disponibilité. Voir la console pour plus de détails."
+    );
+    console.error(e);
+  }
+};
 </script>
 
 <style scoped>

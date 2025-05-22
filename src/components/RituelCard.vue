@@ -4,6 +4,7 @@
       :src="rituel.image || require('../assets/rit.png')"
       class="card-img-top"
       alt="Image du rituel {{ rituel.name }}"
+      @error="onImgError"
     />
     <div class="card-body">
       <h5 class="card-title text-center">{{ rituel.name }}</h5>
@@ -29,6 +30,10 @@ defineProps({
     required: true,
   },
 });
+
+function onImgError(e) {
+  e.target.src = require("../assets/rit.png");
+}
 </script>
 
 <style scoped>
