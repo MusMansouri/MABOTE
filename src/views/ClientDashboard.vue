@@ -465,7 +465,7 @@ async function fetchAllFeedbacks() {
           .filter((fb) => (user ? fb.UserId === user.id : true))
           .map((fb) => ({
             id: fb.id,
-            userId: fb.UserId, // Correction ici
+            userId: fb.UserId, // mapping direct
             message: fb.comment || fb.message,
             photo: fb.photo || "",
             createdAt: fb.createdAt,
@@ -525,7 +525,7 @@ async function submitFeedback() {
   const payload = {
     comment: feedbackMessage.value,
     photo: feedbackPhoto.value || "",
-    UserId: user?.id, // Correction ici
+    UserId: user?.id, // majuscule pour compatibilité backend
   };
   if (user && typeof user.id === "number" && token) {
     try {
@@ -564,6 +564,17 @@ function removeFeedbackPhoto(feedbackId) {
 }
 async function deleteFeedback(feedbackId) {
   if (confirm("Voulez-vous vraiment supprimer ce feedback ?")) {
+    const token = localStorage.getItem("jwt");
+    const API_URL = process.env.VUE_APP_API_URL || "";
+    // Log de debug pour vérifier le feedback côté BDD
+    try {
+      const res = await axios.get(`${API_URL}/feedbacks/${feedbackId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Feedback à supprimer (debug):", res.data);
+    } catch (e) {
+      console.warn("Impossible de récupérer le feedback pour debug", e);
+    }
     // Vérifie si l'id est un id BDD (numérique, pas généré localement)
     const isDbId = typeof feedbackId === "number" && feedbackId < 1e12; // Date.now() > 1e12
     if (isDbId) {
@@ -606,15 +617,40 @@ function cancelEditFeedback() {
   editFeedbackMessage.value = "";
   editFeedbackPhoto.value = "";
 }
-function saveEditFeedback(fb) {
+async function saveEditFeedback(fb) {
   if (!editFeedbackMessage.value) return;
   const idx = feedbacksAll.value.findIndex((f) => f.id === fb.id);
-  if (idx !== -1) {
+  const isDbId = typeof fb.id === "number" && fb.id < 1e12;
+  if (isDbId) {
+    const token = localStorage.getItem("jwt");
+    const API_URL = process.env.VUE_APP_API_URL || "";
+    try {
+      await axios.put(
+        `${API_URL}/feedbacks/${fb.id}`,
+        {
+          comment: editFeedbackMessage.value,
+          photo: editFeedbackPhoto.value,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      await fetchAllFeedbacks();
+    } catch (e) {
+      let msg = "Erreur lors de la modification du feedback côté serveur.";
+      if (e.response && e.response.data && e.response.data.message) {
+        msg += `\n${e.response.data.message}`;
+      }
+      alert(msg);
+      console.error(e);
+    }
+  } else if (idx !== -1) {
     feedbacksAll.value[idx] = {
       ...feedbacksAll.value[idx],
       message: editFeedbackMessage.value,
       photo: editFeedbackPhoto.value,
     };
+    saveFeedbacksAll();
   }
   cancelEditFeedback();
 }
